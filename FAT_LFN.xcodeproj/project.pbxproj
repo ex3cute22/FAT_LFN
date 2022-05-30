@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		400D4D4A2824E87600BC6A5F /* FileDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 400D4D492824E87600BC6A5F /* FileDetailsView.swift */; };
 		40532AD92838C554007B25A2 /* InfoFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40532AD82838C554007B25A2 /* InfoFile.swift */; };
 		406ADB08280D92FB0034FC67 /* AddFileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406ADB07280D92FB0034FC67 /* AddFileView.swift */; };
 		406ADB0A280D94D00034FC67 /* ListFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406ADB09280D94D00034FC67 /* ListFilesView.swift */; };
 		4077E2AA2834DBE500AB79A2 /* SplashSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4077E2A92834DBE500AB79A2 /* SplashSettingsView.swift */; };
 		409820A227E8DA3200C77138 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409820A127E8DA3200C77138 /* ViewModel.swift */; };
 		409820A627E9C59C00C77138 /* ParametrsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409820A527E9C59C00C77138 /* ParametrsView.swift */; };
+		40D2516E283F311E005FD9F6 /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D2516D283F311E005FD9F6 /* CustomAlert.swift */; };
 		40F2EA6927C8DC4B00CB85AC /* FAT_LFNApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F2EA5927C8DC4800CB85AC /* FAT_LFNApp.swift */; };
 		40F2EA6A27C8DC4B00CB85AC /* FAT_LFNApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F2EA5927C8DC4800CB85AC /* FAT_LFNApp.swift */; };
 		40F2EA6B27C8DC4B00CB85AC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F2EA5A27C8DC4800CB85AC /* ContentView.swift */; };
@@ -25,13 +25,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		400D4D492824E87600BC6A5F /* FileDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailsView.swift; sourceTree = "<group>"; };
 		40532AD82838C554007B25A2 /* InfoFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoFile.swift; sourceTree = "<group>"; };
 		406ADB07280D92FB0034FC67 /* AddFileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFileView.swift; sourceTree = "<group>"; };
 		406ADB09280D94D00034FC67 /* ListFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFilesView.swift; sourceTree = "<group>"; };
 		4077E2A92834DBE500AB79A2 /* SplashSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashSettingsView.swift; sourceTree = "<group>"; };
 		409820A127E8DA3200C77138 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		409820A527E9C59C00C77138 /* ParametrsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametrsView.swift; sourceTree = "<group>"; };
+		40D2516D283F311E005FD9F6 /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
+		40D2516F2841D90B005FD9F6 /* FAT_LFN (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "FAT_LFN (iOS).entitlements"; sourceTree = "<group>"; };
 		40F2EA5927C8DC4800CB85AC /* FAT_LFNApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAT_LFNApp.swift; sourceTree = "<group>"; };
 		40F2EA5A27C8DC4800CB85AC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		40F2EA5B27C8DC4B00CB85AC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 		40F2EA5327C8DC4800CB85AC = {
 			isa = PBXGroup;
 			children = (
+				40D2516F2841D90B005FD9F6 /* FAT_LFN (iOS).entitlements */,
 				40F2EA5827C8DC4800CB85AC /* Shared */,
 				40F2EA6727C8DC4B00CB85AC /* macOS */,
 				40F2EA6127C8DC4B00CB85AC /* Products */,
@@ -115,8 +117,8 @@
 				409820A527E9C59C00C77138 /* ParametrsView.swift */,
 				40532AD82838C554007B25A2 /* InfoFile.swift */,
 				40F2EA7727C8DC5600CB85AC /* Model */,
-				400D4D492824E87600BC6A5F /* FileDetailsView.swift */,
 				4077E2A92834DBE500AB79A2 /* SplashSettingsView.swift */,
+				40D2516D283F311E005FD9F6 /* CustomAlert.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -230,9 +232,9 @@
 				4077E2AA2834DBE500AB79A2 /* SplashSettingsView.swift in Sources */,
 				406ADB0A280D94D00034FC67 /* ListFilesView.swift in Sources */,
 				409820A227E8DA3200C77138 /* ViewModel.swift in Sources */,
+				40D2516E283F311E005FD9F6 /* CustomAlert.swift in Sources */,
 				40F2EA6B27C8DC4B00CB85AC /* ContentView.swift in Sources */,
 				409820A627E9C59C00C77138 /* ParametrsView.swift in Sources */,
-				400D4D4A2824E87600BC6A5F /* FileDetailsView.swift in Sources */,
 				40F2EA7D27C8F9E400CB85AC /* MainView.swift in Sources */,
 				40532AD92838C554007B25A2 /* InfoFile.swift in Sources */,
 				40F2EA7927C8DC6B00CB85AC /* FileSystem.swift in Sources */,
@@ -367,8 +369,9 @@
 		40F2EA7227C8DC4B00CB85AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "FAT_LFN (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q725XC84L2;
@@ -377,6 +380,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -388,6 +392,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "ilya.FAT-LFN";
 				PRODUCT_NAME = FAT_LFN;
 				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -397,8 +402,9 @@
 		40F2EA7327C8DC4B00CB85AC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "FAT_LFN (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q725XC84L2;
@@ -407,6 +413,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -418,6 +425,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "ilya.FAT-LFN";
 				PRODUCT_NAME = FAT_LFN;
 				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

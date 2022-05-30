@@ -13,7 +13,7 @@ struct MainView: View {
     @State var showInfo = false
     @State var showAlert = false
     @ObservedObject var fileSystem = FileSystem(partitionSize: 16 * 65_536, clusterSize: 4096) //FileSystem(partitionSize: 256 * 1024 * 1024, clusterSize: 4 * 1024)
-        //FileSystem(partitionSize: 16 * 65_536, clusterSize: 4096)
+    //FileSystem(partitionSize: 16 * 65_536, clusterSize: 4096)
     @State var indexCurrFAT = 0
     
     var body: some View {
@@ -41,25 +41,27 @@ struct MainView: View {
                 
                 if showInfo {
                     VStack(alignment: .leading) {
-                        Text("Свободное пространство: \(fileSystem.freeSpace)")
+                        Text("Свободное пространство: \(fileSystem.freeSpace) (\(fileSystem.getFreeSpacePercentage())%)")
                         Text("Размер кластера: \(fileSystem.clusterSize)")
                     }
                 }
             }
             .navigationBarItems(
                 leading:
-                Button {
-                    withAnimation(.spring()) {
-                        self.isShowFile.toggle()
-                    }
-                } label: {
-                    Image(systemName: "book")
-                },
+                    Button {
+                        withAnimation(.spring()) {
+                            self.isShowFile.toggle()
+                        }
+                    } label: {
+                        Image(systemName: "book")
+                    },
                 trailing:
                     Button {
                         withAnimation(.spring()) {
-                            if indexCurrFAT == 0 && fileSystem.freeSpace != 0 {
-                                self.isCreateFile.toggle()
+                            if indexCurrFAT == 0 {
+                                if fileSystem.freeSpace != 0 {
+                                    self.isCreateFile.toggle()
+                                }
                             } else {
                                 alertView()
                             }
@@ -71,6 +73,7 @@ struct MainView: View {
             
             .navigationTitle("Карта кластеров")
         }
+        .navigationViewStyle(.stack)
         .sheet(isPresented: $isShowFile) {
             ListFilesView(fileSystem: fileSystem)
         }
@@ -78,29 +81,22 @@ struct MainView: View {
             AddFileView(fileSystem: fileSystem)
         }
     }
-        func alertView() {
-            let alert = UIAlertController(title: "Проверка диска", message: "Найдено \(fileSystem.checkDisk()) отличий.", preferredStyle: .alert)
-
-            alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: { _ in
-                withAnimation {
-
-                }
-            }))
-            
-            UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true, completion: nil)
-        }
+    func alertView() {
+        let alert = UIAlertController(title: "Проверка диска", message: "Найдено \(fileSystem.checkDisk()) отличий.", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: { _ in
+            withAnimation {
+                
+            }
+        }))
+        
+        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true, completion: nil)
+    }
 }
-
-//struct MainView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        MainView(fileSystem: FileSystem(partitionSize: 1048576, clusterSize: 4096))
-//    }
-//}
 
 struct MapOfClustersView: View {
     @ObservedObject var fs: FileSystem
     @Binding var currFat: [FatBlock]
-    
     
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {

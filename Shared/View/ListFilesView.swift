@@ -9,172 +9,185 @@ import SwiftUI
 
 struct ListFilesView: View {
     @ObservedObject var fileSystem: FileSystem
-    @State var isShowingAlert = false
     @State var newSymbol: String = ""
+    @Environment(\.colorScheme) var colorMode
     
     var body: some View {
         NavigationView {
-            VStack {
-                Form{
-                    Section("Записи SFN") {
-                        if fileSystem.currentDir != "\\" {
-                            HStack {
-                                Text(".")
+            ZStack {
+                VStack {
+                    Form{
+                        Section("Записи SFN") {
+                            if fileSystem.isRootDir() {
+                                List($fileSystem.entries, id: \.self) { $entry in
+                                    if entry.attr != .volumeLabel {
+                                        ListView(fileSystem: fileSystem, entry: $entry, newSymbol: $newSymbol)
+                                    }
+                                }
                             }
-                            HStack {
+                            else {
+                                let index = fileSystem.getIndexCurDir()!
+                                NavigationLink(destination: InfoFileView(fs: fileSystem, entry: fileSystem.subDir[index].currentEntry)){
+                                    Text(".")
+                                        .bold()
+                                }
                                 Text("..")
+                                    .bold()
+                                    .onTapGesture {
+                                        withAnimation {
+                                            fileSystem.currentCluster = fileSystem.subDir[index].parentEntry.startCluster
+                                        }
+                                    }
+                                List($fileSystem.subDir[index].entries, id: \.self) { $entry in
+                                    if entry.attr != .volumeLabel {
+                                        ListView(fileSystem: fileSystem, entry: $entry, newSymbol: $newSymbol)
+                                    }
+                                }
                             }
                         }
-                        List($fileSystem.entries, id: \.self) { $entry in
-                            // if entry.startCluster == fileSystem.currenttCluster {
-                            NavigationLink(destination: entry.attr == .directory ? nil : InfoFileView(fs: fileSystem, entry: entry)) {
-                                HStack {
-                                    if entry.attr == .directory {
-                                        Image(systemName: "folder")
+                        
+                        Section("Записи LFN") {
+                            if fileSystem.isRootDir() {
+                                List($fileSystem.entriesLFN , id: \.self) { $entry in
+                                    let entrySFN = fileSystem.entries.filter({$0.startCluster == entry.firstCluster}).first!
+                                    NavigationLink(destination: InfoFileView(fs: fileSystem, entry: entry)) {
+                                        HStack {
+                                            Text("\(entry.name_1+entry.name_2+entry.name_3)")
+                                        }
                                     }
-                                    let name = entry.name//.first ? fileSystem.makeFirstByteDeletedFile(name: entry.name) : entry.name
-                                    Text("\(name + "." + entry.ext)")
-                                        .bold()
-                                    //Text("\tНачальный кластер: \(entry.startCluster+1)")
+                                    .listRowBackground(fileSystem.isDeleted(entry: entrySFN) ? Color.red : colorMode == .dark ? Color(.systemGray5) : Color.white)
                                 }
-                                //                                .onTapGesture(perform: {
-                                //                                    if entry.attr == FileAttribute.directory {
-                                //                                        fileSystem.changeCurrentDirectory(catalog: entry)
-                                //                                    } else if !entry.isDeleted {
-                                //                                        print(entry.name.toAsciiHex())
-                                //                                        print(fileSystem.getSequenceClusters(startCluster: entry.startCluster))
-                                //                                        print(fileSystem.getFullNameFile(entry: entry))
-                                //                                    }
-                                //                                })
-                                
-                            }
-                            .listRowBackground(fileSystem.isDeleted(entry: entry) ? Color.red : Color.white)
-                            .swipeActions(edge: !fileSystem.isDeleted(entry: entry) ? .trailing : .leading) {
-                                if !fileSystem.isDeleted(entry: entry) {
-                                    Button(role: .destructive) {
+                            } else {
+                                let index = fileSystem.getIndexCurDir()!
+                                NavigationLink(destination: InfoFileView(fs: fileSystem, entry: fileSystem.subDir[index].currentEntry)){
+                                    Text(".")
+                                        .bold()
+                                }
+                                Text("..")
+                                    .bold()
+                                    .onTapGesture {
                                         withAnimation {
-                                            if entry.attr == .directory {
-                                                //Delete catalog
-                                            } else {
-                                                fileSystem.deleteFiles(entry: entry)
-                                                entry.makeFirstByteOfNameDeletedFile()
+                                            fileSystem.currentCluster = fileSystem.subDir[index].parentEntry.startCluster
+                                        }
+                                    }
+                                List($fileSystem.subDir[index].entriesLong, id: \.self) { $entry in
+                                    let entrs = fileSystem.isRootDir() ? fileSystem.entries : fileSystem.subDir[fileSystem.getIndexCurDir()!].entries
+                                    let entrySFN = entrs.filter({$0.startCluster == entry.firstCluster}).first!
+                                    NavigationLink(destination: entry.attr == .directory ? nil : InfoFileView(fs: fileSystem, entry: entry)) {
+                                        Text("\(entry.name_1+entry.name_2+entry.name_3)")
+                                    }
+                                    .listRowBackground(fileSystem.isDeleted(entry: entrySFN) ? Color.red : colorMode == .dark ? Color(.systemGray5) : Color.white)
+                                }
+                            }
+                            
+                        }
+                    }
+                    let entrs = fileSystem.isRootDir() ? fileSystem.entries : fileSystem.subDir[fileSystem.getIndexCurDir()!].entries
+                    let amountOfDeletedFiles = entrs.filter{fileSystem.isDeleted(entry: $0)}.count
+                    
+                    if amountOfDeletedFiles > 0 {
+                        VStack(spacing: 20) {
+                            TextField("Новый символ", text: $newSymbol)
+                                .onChange(of: newSymbol) { newValue in
+                                    if newValue.count > 1 { //ограничение на 1 символ
+                                        newSymbol = String(newValue.dropLast(newValue.count - 1)).uppercased()
+                                    } else {
+                                        fileSystem.bannedChar.forEach { char in
+                                            if newValue.contains(char) { //проверка на запрещенные символы
+                                                newSymbol = newValue.replacingOccurrences(of: char, with: "")
                                             }
                                         }
-                                    } label: {
-                                        Label("Удалить", systemImage: "trash")
-                                    }
-                                }
-                                else {
-                                    Button {
-                                        withAnimation {
-                                            fileSystem.recoveryFile(entry: entry)
-                                            isShowingAlert.toggle()
-                                            //alertView()
-                                            //entry.restoreFirstByteOfName(newSymbol: Character(newSymbol))
+                                        
+                                        fileSystem.lfnSpecialChar.forEach { char in
+                                            if newValue.contains(char) {
+                                                newSymbol = newValue.replacingOccurrences(of: char, with: "_")
+                                            }
                                         }
-                                    } label: {
-                                        Label("Восстановить", systemImage: "return")
+                                        
+                                        if newValue.contains(" ") {
+                                            newSymbol = newValue.trimmingCharacters(in: .whitespaces)
+                                        }
                                     }
-                                    .tint(.blue)
                                 }
+                                .padding(14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(.blue)
+                                )
+                            Button {
+                                withAnimation {
+                                    fileSystem.deleteCompletelyFiles()
+                                }
+                            } label: {
+                                Text("Удалить без восстановления выбранные файлы")
                             }
                         }
+                        .padding(14)
                     }
-                    Section("Записи LFN") {
-                        List($fileSystem.entriesLFN , id: \.self) { $entry in
-                            NavigationLink(destination: entry.attr == .directory ? nil : InfoFileView(fs: fileSystem, entry: entry)) {
-                                HStack {
-                                    Text("\(entry.name_1+entry.name_2+entry.name_3)")
-                                }
-                            }
-                            //                            let entrySFN = fileSystem.entries.filter({$0.startCluster == entry.firstCluster}).first!
-                            //                            .listRowBackground(fileSystem.isDeleted(entry: entrySFN)  ? Color.red : Color.white)
-                        }
+                    
+                }
+                .navigationTitle(fileSystem.getDirectoryName())
+            }
+        }
+    }
+}
+
+struct ListView: View {
+    @State var fileSystem: FileSystem
+    @Binding var entry: Entry
+    @Binding var newSymbol: String
+    @Environment(\.colorScheme) var colorMode
+    
+    var body: some View {
+        NavigationLink(destination: InfoFileView(fs: fileSystem, entry: entry)) {
+            HStack {
+                if entry.attr == .directory {
+                    Image(systemName: "folder")
+                }
+                Text(entry.name + "." + entry.ext)
+                    .bold()
+            }
+            .onTapGesture {
+                if entry.attr == FileAttribute.directory {
+                    withAnimation {
+                        fileSystem.currentCluster = entry.startCluster
                     }
                 }
-                Button {
+            }
+        }
+        .listRowBackground(fileSystem.isDeleted(entry: entry) ? Color.red : colorMode == .dark ? Color(.systemGray5) : Color.white)
+        .swipeActions(edge: !fileSystem.isDeleted(entry: entry) ? .trailing : .leading) {
+            if !fileSystem.isDeleted(entry: entry) {
+                Button(role: .destructive) {
                     withAnimation {
-                        fileSystem.deleteCompletelyFiles()
+                        if entry.attr == .directory {
+                            if entry.fileSize == fileSystem.clusterSize { //Delete catalog
+                                fileSystem.deleteFiles(entry: entry)
+                                entry.makeFirstByteOfNameDeletedFile()
+                            }
+                        } else {
+                            fileSystem.deleteFiles(entry: entry)
+                            entry.makeFirstByteOfNameDeletedFile()
+                        }
                     }
                 } label: {
-                    Text("Удалить без восстановления выбранные файлы")
+                    Label("Удалить", systemImage: "trash")
                 }
             }
-            .navigationTitle(fileSystem.currentDir)
-        }
-        .textFieldAlert(isShowing: $isShowingAlert, text: $newSymbol, title: "Добавить новый символ")
-    }
-    
-    //    func alertView() {
-    //        let alert = UIAlertController(title: "Новый первый символ", message: "Найдено \(fileSystem.checkDisk()) отличий.", preferredStyle: .alert)
-    //
-    //        alert.addTextField { newSymbol in
-    //            newSymbol.placeholder = "Укажите символ"
-    //        }
-    //
-    //        alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: { _ in
-    //            withAnimation {
-    //
-    //            }
-    //        }))
-    ////        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: { _ in
-    ////
-    ////        }))
-    //
-    //        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true, completion: nil)
-    //    }
-}
-
-
-struct TextFieldAlert<Presenting>: View where Presenting: View {
-
-    @Binding var isShowing: Bool
-    @Binding var text: String
-    let presenting: Presenting
-    let title: String
-
-    var body: some View {
-        GeometryReader { (deviceSize: GeometryProxy) in
-            ZStack {
-                self.presenting
-                    .disabled(isShowing)
-                VStack {
-                    Text(self.title)
-                    TextField("", text: self.$text)
-                    Divider()
-                    HStack {
-                        Button(action: {
-                            withAnimation {
-                                self.isShowing.toggle()
-                            }
-                        }) {
-                            Text("Dismiss")
+            else {
+                Button {
+                    withAnimation {
+                        if !newSymbol.isEmpty && !fileSystem.duplicateNameCheck(name: String(newSymbol) + String(entry.name.suffix(entry.name.count-1)), ext: entry.ext) {
+                            entry.restoreFirstByteOfName(newSymbol: Character(newSymbol))
+                            fileSystem.recoveryFile(entry: entry)
+                            entry.wrtDate = Date()
                         }
                     }
+                } label: {
+                    Label("Восстановить", systemImage: "return")
                 }
-                .padding()
-                .background(Color.white)
-                .frame(
-                    width: deviceSize.size.width*0.7,
-                    height: deviceSize.size.height*0.7
-                )
-                .shadow(radius: 1)
-                .opacity(self.isShowing ? 1 : 0)
+                .tint(.blue)
             }
         }
     }
-
-}
-
-extension View {
-
-    func textFieldAlert(isShowing: Binding<Bool>,
-                        text: Binding<String>,
-                        title: String) -> some View {
-        TextFieldAlert(isShowing: isShowing,
-                       text: text,
-                       presenting: self,
-                       title: title)
-    }
-
 }

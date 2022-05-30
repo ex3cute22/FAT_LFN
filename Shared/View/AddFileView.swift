@@ -18,39 +18,39 @@ struct AddFileView: View {
     @State var isDirectory = false
     @State var isDuplicate = false
     @State var currChar = ""
+    @State var banToCreate = true
+    @State var nameIsEmpty = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 25) {
                 Toggle("Каталог", isOn: $isDirectory)
                 TextField("Название файла", text: $name)
-                    .textFieldStyle(name: name, condition: isDuplicate)
+                    .textFieldStyle(name: name, condition: isDuplicate || nameIsEmpty)
                     .autocapitalization(.none)
                     .onChange(of: name) { newValue in
-                        if newValue.count > 255 {
+                        if newValue.count > 255 { //ограничение на 255 символов
                             name = String(newValue.dropLast(newValue.count - 255))
                         }
                         
                         fileSystem.bannedChar.forEach { char in
-                            if newValue.contains(char) {
+                            if newValue.contains(char) { //проверка на запрещенные символы
                                 name = newValue.replacingOccurrences(of: char, with: "")
-                                print("symbol: \(char), name: \(name))")
                             }
                         }
                         
-                        if newValue.count < 8 {
+                        withAnimation {
+                            isDuplicate = fileSystem.duplicateNameCheck(name: name, ext: ext)
+                            nameIsEmpty = name.isEmpty
+                            banToCreate = nameIsEmpty || ext.isEmpty || isDuplicate || ext.count != 3
                             fileSystem.lfnSpecialChar.forEach { char in
-                                if newValue.contains(char) {
-                                    name = newValue.replacingOccurrences(of: char, with: "")
-                                    //print("symbol: \(char), name: \(name))")
+                                if name.contains(char) && name.count <= 8 {
+                                    banToCreate = true
                                 }
                             }
                         }
-                        withAnimation {
-                            isDuplicate = fileSystem.duplicateNameCheck(name: name, ext: ext)
-                        }
                     }
-                if isDuplicate {
+                if isDuplicate && !nameIsEmpty {
                     withAnimation {
                         Text("Файл с таким именем уже есть!")
                     }
@@ -63,11 +63,30 @@ struct AddFileView: View {
                     .textFieldStyle(name: ext, condition: ext.count != 3)
                     .autocapitalization(.none)
                     .onChange(of: ext) { newValue in
+                        fileSystem.bannedChar.forEach { char in
+                            if newValue.contains(char) { //проверка на запрещенные символы
+                                ext = newValue.replacingOccurrences(of: char, with: "")
+                            }
+                        }
+                        
+                        fileSystem.lfnSpecialChar.forEach { char in
+                            if newValue.contains(char) { //проверка на спец символы
+                                ext = newValue.replacingOccurrences(of: char, with: "_")
+                            }
+                        }
+                        
                         if newValue.count > 3 {
                             ext = String(newValue.dropLast(newValue.count - 3))
                         }
+                        
                         withAnimation {
                             isDuplicate = fileSystem.duplicateNameCheck(name: name, ext: ext)
+                            banToCreate = nameIsEmpty || ext.isEmpty || isDuplicate || ext.count != 3
+                            fileSystem.lfnSpecialChar.forEach { char in
+                                if name.contains(char) && name.count <= 8 {
+                                    banToCreate = true
+                                }
+                            }
                         }
                     }
                 if !isDirectory {
@@ -78,11 +97,14 @@ struct AddFileView: View {
                         }
                         Text("Размер файла (в байтах): \(Int(fileSize))")
                     }
-                    ColorPicker("Выбор цвета кластеров", selection: $color, supportsOpacity: false)
                 }
+                ColorPicker("Выбор цвета кластеров", selection: $color, supportsOpacity: false)
                 Spacer()
                 Button {
-                    if !fileSystem.duplicateNameCheck(name: name, ext: ext) {
+                    name = name.trimmingCharacters(in: .whitespaces)
+                    ext = ext.trimmingCharacters(in: .whitespaces)
+                    
+                    if !banToCreate {
                         fileSystem.createNewFile(fileName: name, ext: ext, attr: isDirectory ? .directory : .sfn, fileSize: isDirectory ? fileSystem.clusterSize : Int(fileSize), color: color)
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -90,8 +112,8 @@ struct AddFileView: View {
                     Text("Создать")
                         .bold()
                 }
-                .opacity(name.isEmpty || ext.isEmpty || isDuplicate || ext.count != 3 ? 0 : 1)
-                .disabled(name.isEmpty || ext.isEmpty || isDuplicate || ext.count != 3)
+                .opacity(banToCreate ? 0 : 1)
+                .disabled(banToCreate)
                 .animation(.interactiveSpring())
             }
             .padding()
@@ -119,14 +141,3 @@ struct Modifier: ViewModifier {
             )
     }
 }
-
-
-//                TextField("Атрибут файла", text: $attr)
-//                    .textFieldStyle(name: attr)
-//                    .keyboardType(.decimalPad)
-//                    .onChange(of: attr) { newValue in
-//                        attr.removeAll { $0 != "0" && $0 != "1"}
-//                        if newValue.count > 4 {
-//                        attr = String(newValue.dropLast(newValue.count - 4))
-//                        }
-//                    }

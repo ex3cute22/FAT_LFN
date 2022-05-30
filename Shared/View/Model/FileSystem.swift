@@ -22,24 +22,23 @@ struct BootSector {
 protocol IEntry {}
 
 struct EntryLong: IEntry, Hashable {
-    var ord: Int //for numeration
-    var name_1: String //5 symbols
-    var attr: FileAttribute //
-    //var type: Character //
-    var name_2: String //6-11 symbols
-    var firstCluster: Int
-    var name_3: String //12-13 symbols
+    var ord: Int //нумерация
+    var name_1: String //5 символов имени
+    var attr: FileAttribute //атрибут файла
+    var name_2: String //6-11 символы
+    var firstCluster: Int //номер первого кластера
+    var name_3: String //12-13 символы
 }
 
-
 struct Entry: IEntry, Hashable {
-    var name: String
-    var ext: String
-    var attr: FileAttribute
-    var crtDate: Date
-    var wrtDate: Date
-    var startCluster: Int
-    var fileSize: Int
+    var name: String //название файла
+    var ext: String //расширение файла
+    var attr: FileAttribute //атрибут файла
+    var crtDate: Date //дата создания
+    var wrtDate: Date //дата изменения
+    var startCluster: Int //номер первого кластера
+    var fileSize: Int //размер файла
+    
     
     func getFileName() -> String {
         return name + ext
@@ -73,20 +72,17 @@ enum BlockAttribute: Int {
     case last = 0xffff
 }
 
-
-struct RootDirectory {
-    var entries: [Entry] = []
-    var entriesLFN: [EntryLong] = []
+class SubDirectory: ObservableObject {
+    @Published var currentEntry: Entry //.
+    @Published var parentEntry: Entry //..
+    @Published var entries: [Entry] = []
+    @Published var entriesLong: [EntryLong] = []
+    
+    init(currentEntry: Entry, parentEntry: Entry) {
+        self.currentEntry = currentEntry
+        self.parentEntry = parentEntry
+    }
 }
-
-
-struct SubDirectory {
-    var currentEntry: Entry //.
-    var parentEntry: Entry //..
-    var entries: [Entry]
-    var entryLong: [EntryLong]
-}
-
 
 public extension String {
     func toAsciiHex() -> String {
@@ -105,6 +101,6 @@ public extension String {
 
 public extension Int {
     func toHex(byte: UInt = 1) -> String {
-        return String(format: "%\(byte*2)X", self)
+        return String(format: "0x%\(byte*2)X", self)
     }
 }
